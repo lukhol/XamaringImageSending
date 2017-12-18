@@ -1,8 +1,8 @@
 ﻿using ImageTestApp.Services;
 using Plugin.Media;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Forms;
@@ -13,6 +13,30 @@ namespace ImageTestApp.ViewModels
     {
         private IImageService ImageService { get; }
         private URLRepository URLRepository { get; }
+
+        private IDictionary<string, string> pathDictionary = new Dictionary<string, string>();
+
+        private string imagePath;
+        public string ImagePath
+        {
+            get => imagePath;
+            set
+            {
+                imagePath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string imageToSendCount;
+        public string ImageToSendCount
+        {
+            get => "Image to send: " + imageToSendCount;
+            set
+            {
+                imageToSendCount = value;
+                OnPropertyChanged();
+            }
+        }
 
         public PhotoViewModel(IImageService imageService, URLRepository urlRepository)
         {
@@ -40,9 +64,12 @@ namespace ImageTestApp.ViewModels
                 return;
 
             ImagePath = file.Path;
+
+            pathDictionary.Add(file.Path, GetImageNameFromPath(file.Path));
+            ImageToSendCount = pathDictionary.Count.ToString();
         });
 
-        public ICommand SendPhotoCommand => new Command(() =>
+        public ICommand SendPhotoByStreamCommand => new Command(() =>
         {
             IsBusy = true;
 
@@ -50,8 +77,7 @@ namespace ImageTestApp.ViewModels
 
             try
             {
-                var fileName = imagePath.Split('/').Last();
-                guid = fileName.Substring(0, fileName.LastIndexOf("."));
+                guid = GetImageNameFromPath(imagePath);
             }
             catch (Exception e)
             {
@@ -60,34 +86,54 @@ namespace ImageTestApp.ViewModels
                 return;
             }
 
-
             Task.Run(async () =>
             {
-                //var result = await ImageService.SendImageAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
-                var result = true;
-                await ImageService.SendImageWithPluginAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
+                var result = await ImageService.SendImageAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {
                     if (result)
                         await App.Current.MainPage.DisplayAlert("SUCCESS", "Image uploaded succesfully.", "Ok");
+
                     else
-                        await App.Current.MainPage.DisplayAlert("ERROR", "Error occured during uploading image.", "Ok");
+                        await App.Current.MainPage.DisplayAlert("ERROR", "Error occured during uploading image.", "Ok"); 
 
                     IsBusy = false;
                 });
             });
         });
 
-        private string imagePath;
-        public string ImagePath
+        public ICommand SendMultiplePhotoByMultipartCommand => new Command(() =>
         {
-            get => imagePath;
-            set
+            IsBusy = true;
+
+            Task.Run(async () =>
             {
-                imagePath = value;
-                OnPropertyChanged();
-            }
+                var result = await ImageService.SendMultipleImagesWithMultipartAsync(URLRepository.GetMultipartImageUrl(), pathDictionary);
+
+                Device.BeginInvokeOnMainThread(async () =>
+                {
+                    if (result)
+                    {
+                        await App.Current.MainPage.DisplayAlert("SUCCESS", "Image uploaded succesfully.", "Ok");
+                        pathDictionary.Clear();
+                        ImageToSendCount = pathDictionary.Count.ToString();
+                    }
+                    else
+                    {
+                        await App.Current.MainPage.DisplayAlert("ERROR", "Error occured during uploading image.", "Ok");
+                    }
+
+                    IsBusy = false;
+                });
+            });
+        });
+
+        private string GetImageNameFromPath(string imagePath)
+        {
+            var fileName = imagePath.Split('/').Last();
+            var guid = fileName.Substring(0, fileName.LastIndexOf("."));
+            return guid;
         }
     }
 }

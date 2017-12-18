@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 
@@ -14,7 +16,7 @@ namespace SpotsFinderWeb.Controllers
         private string ImageDirectoryPath { get; }
         public ImageController()
         {
-            ImageDirectoryPath = @"C:\Projects\PBL\server-webapi\SpotsFinderWeb\SpotsFinderWeb\App_Data\Images\";
+            ImageDirectoryPath = @"C:\Users\Lukasz\source\repos\ImageTestApp\ImageWeb\App_Data\Images\";
         }
 
         [Route("api/image")]
@@ -25,15 +27,14 @@ namespace SpotsFinderWeb.Controllers
 
             var task = Request.Content.ReadAsStreamAsync();
             task.Wait();
-            Stream requestStream = task.Result;
 
             try
             {
-                Stream fileStream = File.Create(ImageDirectoryPath + guid + ".jpg");
-                requestStream.CopyTo(fileStream);
-
-                fileStream.Close();
-                requestStream.Close();
+                using (var fileStream = File.Create(ImageDirectoryPath + guid + ".jpg"))
+                using ( var requestStream = task.Result)
+                {
+                    requestStream.CopyTo(fileStream);
+                }
             }
             catch (Exception e)
             {
@@ -42,6 +43,42 @@ namespace SpotsFinderWeb.Controllers
             }
 
             return Ok<string>(guid);
+        }
+
+        [Route("api/image/multipart")]
+        public async Task<IHttpActionResult> PostImageMultipart()
+        {
+            if (!Request.Content.IsMimeMultipartContent("form-data"))
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var provider = new MultipartFormDataStreamProvider(ImageDirectoryPath);
+                await Request.Content.ReadAsMultipartAsync(provider);
+
+                foreach (var content in provider.Contents)
+                {
+                    var taskImage = content.ReadAsStreamAsync();
+                    var imageName = content.Headers.ContentDisposition.Name;
+
+                    var uploadPath = string.Format("{0}{1}{2}", ImageDirectoryPath, imageName, ".jpg");
+
+                    using (var fileStream = File.Create(uploadPath))
+                    using (var requestStream = taskImage.Result)
+                    {
+                        requestStream.CopyTo(fileStream);
+                    }
+                }
+
+                return Ok();
+            }
+            catch (Exception e)
+            {
+
+                return InternalServerError(e);
+            }
         }
     }
 }

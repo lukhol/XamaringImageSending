@@ -6,16 +6,25 @@
 
     <StackLayout>
         <Label Text="{Binding ImagePath}" 
-               VerticalOptions="StartAndExpand" 
+               VerticalOptions="Start" 
                HorizontalOptions="Center"
                TextColor="Black"/>
-        <Button Text="Send photo from path!"
-                VerticalOptions="Center" 
+        <Label Text="{Binding ImageToSendCount}" 
+               VerticalOptions="Start" 
+               HorizontalOptions="Center"
+               TextColor="Black"/>
+        <Button Text="Send photo from path - stream!"
+                VerticalOptions="Start" 
                 HorizontalOptions="Center" 
-                Command="{Binding SendPhotoCommand}}"/>
-        <ActivityIndicator
-                IsRunning="{Binding IsBusy}"
-                IsVisible="{Binding IsBusy}"/>
+                Command="{Binding SendPhotoByStreamCommand}"/>
+        <Button Text="Send multiple photos - multipart!"
+                VerticalOptions="Start" 
+                HorizontalOptions="Center" 
+                Command="{Binding SendMultiplePhotoByMultipartCommand}"/>
+        <ActivityIndicator VerticalOptions="Start"
+                           HorizontalOptions="CenterAndExpand"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"/>
         <Button Text="GetPhoto!" 
                 VerticalOptions="EndAndExpand" 
                 HorizontalOptions="Center" 

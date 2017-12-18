@@ -1,5 +1,6 @@
 ﻿using ImageTestApp.Services;
 using ImageTestApp.ViewModels;
+using System.Net.Http;
 using Xamarin.Forms;
 
 namespace ImageTestApp.Views
@@ -10,8 +11,9 @@ namespace ImageTestApp.Views
 		{
 			InitializeComponent();
 
-            IImageService imageServie = new ImageService();
-            URLRepository urlRepository = new URLRepository(@"http://3f2a9006.ngrok.io/api/image");
+            HttpClient httpClient = new HttpClient();
+            IImageService imageServie = new ImageService(httpClient);
+            URLRepository urlRepository = new URLRepository(@"http://3f2a9006.ngrok.io/");
 
             BindingContext = new PhotoViewModel(imageServie, urlRepository);
 		}

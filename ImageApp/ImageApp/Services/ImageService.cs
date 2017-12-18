@@ -2,14 +2,22 @@
 using Plugin.FileUploader;
 using Plugin.FileUploader.Abstractions;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ImageTestApp.Services
 {
     public class ImageService : IImageService
     {
+        private HttpClient httpClient;
+        public ImageService(HttpClient httpClient)
+        {
+            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+        }
+
         public async Task<bool> SendImageAsync(string uri, string filePath, string fileName)
         {
             var currentFileSystem = FileSystem.Current;
@@ -62,7 +70,7 @@ namespace ImageTestApp.Services
             }
         }
 
-        public async Task SendImageWithPluginAsync(string url, string filePath, string fileName)
+        public async Task<bool> SendImageWithPluginAsync(string url, string filePath, string fileName)
         {
             var currentCrossFileUploader = CrossFileUploader.Current;
             var imagePathItem = new FilePathItem("test", filePath);
@@ -78,6 +86,40 @@ namespace ImageTestApp.Services
             };
 
             await currentCrossFileUploader.UploadFileAsync(url, imagePathItem);
+
+            return false;
+        }
+
+        public async Task<bool> SendMultipleImagesWithMultipartAsync(string uri, IDictionary<string, string> pathAndFileNameDictionary)
+        {
+            try
+            {
+                MultipartFormDataContent form = new MultipartFormDataContent();
+
+                foreach(var filePath in pathAndFileNameDictionary)
+                {
+                    var currentFileSystem = FileSystem.Current;
+                    var imageFileInfo = currentFileSystem.GetFileFromPathAsync(filePath.Key);
+                    var result = imageFileInfo.Result;
+                    var imageStreamAsATask = result.OpenAsync(PCLStorage.FileAccess.Read);
+
+                    form.Add(new StreamContent(imageStreamAsATask.Result), filePath.Value);
+                }
+
+                HttpResponseMessage response = await httpClient.PostAsync(uri, form);
+
+                response.EnsureSuccessStatusCode();
+
+                if (response.StatusCode.ToString() != "OK")
+                    return false;
+                else
+                    return true;
+            }
+            catch (Exception e)
+            {
+
+                return false;
+            }
         }
     }
 }

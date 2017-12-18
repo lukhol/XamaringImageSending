@@ -15,7 +15,12 @@ namespace ImageTestApp.Services
 
         public string GetImageUrl(string guid)
         {
-            return string.Format("{0}?guid={1}", ImageUri, guid);
+            return string.Format("{0}{1}?guid={2}", ImageUri, "api/image", guid);
+        }
+
+        public string GetMultipartImageUrl()
+        {
+            return string.Format("{0}{1}", ImageUri, "api/image/multipart");
         }
     }
 }
