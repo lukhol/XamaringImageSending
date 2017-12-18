@@ -63,7 +63,9 @@ namespace ImageTestApp.ViewModels
 
             Task.Run(async () =>
             {
-                var result = await ImageService.SendImageAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
+                //var result = await ImageService.SendImageAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
+                var result = true;
+                await ImageService.SendImageWithPluginAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {

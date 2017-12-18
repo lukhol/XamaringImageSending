@@ -1,4 +1,6 @@
 ﻿using PCLStorage;
+using Plugin.FileUploader;
+using Plugin.FileUploader.Abstractions;
 using System;
 using System.IO;
 using System.Net;
@@ -58,6 +60,24 @@ namespace ImageTestApp.Services
             {
                 return false;
             }
+        }
+
+        public async Task SendImageWithPluginAsync(string url, string filePath, string fileName)
+        {
+            var currentCrossFileUploader = CrossFileUploader.Current;
+            var imagePathItem = new FilePathItem("test", filePath);
+
+            currentCrossFileUploader.FileUploadCompleted += (s,e) =>
+            {
+
+            };
+
+            currentCrossFileUploader.FileUploadError += (s, e) =>
+            {
+
+            };
+
+            await currentCrossFileUploader.UploadFileAsync(url, imagePathItem);
         }
     }
 }

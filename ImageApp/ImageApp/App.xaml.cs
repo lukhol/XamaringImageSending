@@ -1,5 +1,5 @@
 ﻿using ImageTestApp.Views;
-
+using Plugin.Media;
 using Xamarin.Forms;
 
 namespace ImageTestApp
@@ -9,8 +9,9 @@ namespace ImageTestApp
 		public App ()
 		{
 			InitializeComponent();
+            CrossMedia.Current.Initialize();
 
-			MainPage = new MainPage();
+            MainPage = new MainPage();
 		}
 
 		protected override void OnStart ()

@@ -26,6 +26,7 @@ namespace ImageTestApp.Droid
 		
 		public static void UpdateIdValues()
 		{
+			global::ModernHttpClient.Resource.String.library_name = global::ImageTestApp.Droid.Resource.String.library_name;
 			global::PCLStorage.Resource.String.ApplicationName = global::ImageTestApp.Droid.Resource.String.ApplicationName;
 			global::PCLStorage.Resource.String.Hello = global::ImageTestApp.Droid.Resource.String.Hello;
 			global::Xamarin.Forms.Platform.Android.Resource.Attribute.actionBarSize = global::ImageTestApp.Droid.Resource.Attribute.actionBarSize;
@@ -3734,6 +3735,9 @@ namespace ImageTestApp.Droid
 			
 			// aapt resource value: 0x7f0a0038
 			public const int character_counter_pattern = 2131361848;
+			
+			// aapt resource value: 0x7f0a0040
+			public const int library_name = 2131361856;
 			
 			// aapt resource value: 0x7f0a0000
 			public const int mr_button_content_description = 2131361792;
