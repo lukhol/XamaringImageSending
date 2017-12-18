@@ -30,12 +30,28 @@ namespace ImageTestApp.ViewModels
         private string imageToSendCount;
         public string ImageToSendCount
         {
-            get => "Image to send: " + imageToSendCount;
+            get => "Images to send count: " + imageToSendCount;
             set
             {
                 imageToSendCount = value;
                 OnPropertyChanged();
             }
+        }
+
+        private double uploadingProgress;
+        public double UploadingProgress
+        {
+            get => uploadingProgress;
+            set
+            {
+                uploadingProgress = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private void UpdateProgress(double value)
+        {
+            UploadingProgress = value;
         }
 
         public PhotoViewModel(IImageService imageService, URLRepository urlRepository)
@@ -57,7 +73,8 @@ namespace ImageTestApp.ViewModels
             var file = await CrossMedia.Current.TakePhotoAsync(new Plugin.Media.Abstractions.StoreCameraMediaOptions
             {
                 Directory = "image_tests",
-                Name = Guid.NewGuid().ToString()
+                Name = Guid.NewGuid().ToString(),
+                PhotoSize = Plugin.Media.Abstractions.PhotoSize.Medium
             });
 
             if (file == null)
@@ -88,7 +105,10 @@ namespace ImageTestApp.ViewModels
 
             Task.Run(async () =>
             {
-                var result = await ImageService.SendImageAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
+                var imageService = (ImageService)ImageService;
+                imageService.ProgressOnSingleImage += UpdateProgress;
+
+                var result = await imageService.SendImageAsync(URLRepository.GetImageUrl(guid), imagePath, guid);
 
                 Device.BeginInvokeOnMainThread(async () =>
                 {

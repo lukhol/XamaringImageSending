@@ -22,9 +22,13 @@
                 HorizontalOptions="Center" 
                 Command="{Binding SendMultiplePhotoByMultipartCommand}"/>
         <ActivityIndicator VerticalOptions="Start"
-                           HorizontalOptions="CenterAndExpand"
+                           HorizontalOptions="Center"
                            IsRunning="{Binding IsBusy}"
                            IsVisible="{Binding IsBusy}"/>
+        <ProgressBar VerticalOptions="Start"
+                     HorizontalOptions="CenterAndExpand"
+                     IsVisible="{Binding IsBusy}"
+                     Progress="{Binding UploadingProgress}"/>
         <Button Text="GetPhoto!" 
                 VerticalOptions="EndAndExpand" 
                 HorizontalOptions="Center" 

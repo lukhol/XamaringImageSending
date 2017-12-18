@@ -7,11 +7,14 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Xamarin.Forms;
 
 namespace ImageTestApp.Services
 {
     public class ImageService : IImageService
     {
+        public Action<double> ProgressOnSingleImage;
+
         private HttpClient httpClient;
         public ImageService(HttpClient httpClient)
         {
@@ -34,6 +37,17 @@ namespace ImageTestApp.Services
             {
                 using (var imageStream = imageStreamAsATask.Result)
                 {
+                    Device.StartTimer(TimeSpan.FromMilliseconds(100), () =>
+                    {
+                        double percentageUploadingPosition = (double)imageStream.Position / (double)imageStream.Length;
+                        ProgressOnSingleImage?.Invoke(percentageUploadingPosition);
+
+                        if (imageStream.Position >= imageStream.Length - 1)
+                            return false;
+
+                        return true;
+                    });
+
                     request.ContentLength = imageStream.Length;
 
                     using (var requestStream = request.GetRequestStream())
