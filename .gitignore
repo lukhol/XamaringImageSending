@@ -15,4 +15,4 @@ ImageWeb/obj
 
 *.user
 
-ImageWeb/App_Data/Images
+ImageWeb/App_Data/Images/*.jpg
