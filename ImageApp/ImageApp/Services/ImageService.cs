@@ -39,6 +39,9 @@ namespace ImageTestApp.Services
                 {
                     Device.StartTimer(TimeSpan.FromMilliseconds(100), () =>
                     {
+                        if (!imageStream.CanRead)
+                            return false;
+
                         double percentageUploadingPosition = (double)imageStream.Position / (double)imageStream.Length;
                         ProgressOnSingleImage?.Invoke(percentageUploadingPosition);
 

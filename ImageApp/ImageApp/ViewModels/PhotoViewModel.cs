@@ -105,6 +105,7 @@ namespace ImageTestApp.ViewModels
 
             Task.Run(async () =>
             {
+                UploadingProgress = 0;
                 var imageService = (ImageService)ImageService;
                 imageService.ProgressOnSingleImage += UpdateProgress;
 

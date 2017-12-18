@@ -26,9 +26,10 @@
                            IsRunning="{Binding IsBusy}"
                            IsVisible="{Binding IsBusy}"/>
         <ProgressBar VerticalOptions="Start"
-                     HorizontalOptions="CenterAndExpand"
+                     HorizontalOptions="FillAndExpand"
                      IsVisible="{Binding IsBusy}"
-                     Progress="{Binding UploadingProgress}"/>
+                     Progress="{Binding UploadingProgress}"
+                     Margin="10"/>
         <Button Text="GetPhoto!" 
                 VerticalOptions="EndAndExpand" 
                 HorizontalOptions="Center" 
